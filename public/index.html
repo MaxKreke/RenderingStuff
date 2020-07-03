@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link src="style.css">
+    <script src="three.js"></script>
+    <meta charset="UTF-8">
+    <title>Max ist ein Dorsch.</title>
+</head>
+<body>
+    Max ist in Wirklichkeit gar kein Dorsch. und er ist sehr gut.
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        var geometry = new THREE.BoxGeometry();
+        var geometry2 = new THREE.SphereGeometry();
+        var material = new THREE.MeshLambertMaterial( { color: 0x6622ff } );
+        var material2 = new THREE.MeshLambertMaterial({ color: 0xff2211 } );
+        var light = new THREE.PointLight(0xffffff, 1.5, 100);
+        var light2 = new THREE.PointLight(0x992222, 10, 100);
+        var light3 = new THREE.PointLight(0x00FF00, 10, 100);
+        var cube = new THREE.Mesh( geometry2, material );
+        var cube2 = new THREE.Mesh( geometry2, material );
+        var sphere = new THREE.Mesh(geometry2, material2);
+        cube.position.set(0,2,0);
+        scene.add( cube );
+        cube2.position.set(0,-2,0);
+        scene.add(cube2);
+        scene.add(sphere);
+        scene.add( light);
+        scene.add(light2);
+        scene.add(light3);
+
+        camera.position.z = 10;
+        var progression = 0;
+        function animate() {
+            progression += 0.03;
+            light.position.set(10*Math.sin(progression),10*Math.cos(progression),0);
+            light2.position.set(0,10*Math.sin(progression),10*Math.cos(progression));
+            light3.position.set(10*Math.sin(progression),0, 10*Math.cos(progression));
+            //cube.rotation.z += 0.01;
+            //cube.rotation.y += 0.01;
+            //sphere.rotation.y += 0.01;
+            requestAnimationFrame( animate );
+            renderer.render( scene, camera );
+        }
+        animate();
+    </script>
+</body>
+</html>
