@@ -1,52 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link src="style.css">
+    <link rel="stylesheet" href="style.css">
     <script src="three.js"></script>
     <meta charset="UTF-8">
     <title>Max ist ein Dorsch.</title>
 </head>
 <body>
-    Max ist in Wirklichkeit gar kein Dorsch. und er ist sehr gut.
-    <script>
-        var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        var renderer = new THREE.WebGLRenderer();
-        renderer.setSize( window.innerWidth, window.innerHeight );
-        document.body.appendChild( renderer.domElement );
-        var geometry = new THREE.BoxGeometry();
-        var geometry2 = new THREE.SphereGeometry();
-        var material = new THREE.MeshLambertMaterial( { color: 0x6622ff } );
-        var material2 = new THREE.MeshLambertMaterial({ color: 0xff2211 } );
-        var light = new THREE.PointLight(0xffffff, 1.5, 100);
-        var light2 = new THREE.PointLight(0x992222, 10, 100);
-        var light3 = new THREE.PointLight(0x00FF00, 10, 100);
-        var cube = new THREE.Mesh( geometry2, material );
-        var cube2 = new THREE.Mesh( geometry2, material );
-        var sphere = new THREE.Mesh(geometry2, material2);
-        cube.position.set(0,2,0);
-        scene.add( cube );
-        cube2.position.set(0,-2,0);
-        scene.add(cube2);
-        scene.add(sphere);
-        scene.add( light);
-        scene.add(light2);
-        scene.add(light3);
+<script>
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
+    var renderer = new THREE.WebGLRenderer();
 
-        camera.position.z = 10;
-        var progression = 0;
-        function animate() {
-            progression += 0.03;
-            light.position.set(10*Math.sin(progression),10*Math.cos(progression),0);
-            light2.position.set(0,10*Math.sin(progression),10*Math.cos(progression));
-            light3.position.set(10*Math.sin(progression),0, 10*Math.cos(progression));
-            //cube.rotation.z += 0.01;
-            //cube.rotation.y += 0.01;
-            //sphere.rotation.y += 0.01;
-            requestAnimationFrame( animate );
-            renderer.render( scene, camera );
-        }
-        animate();
-    </script>
+    camera.position.z = 10;
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    var material = new THREE.MeshBasicMaterial({color: 0xFFFFFF});
+
+    var light = new THREE.PointLight(0xffffff, 1.5, 100);
+    var light2 = new THREE.PointLight(0x992222, 10, 100);
+    var light3 = new THREE.PointLight(0x00FF00, 10, 100);
+
+    var geometry = new THREE.BufferGeometry();
+
+    var vertices = new Float32Array([
+        -1.0, -1.0, 1.0,
+        1.0, -1.0, 1.0,
+        1.0, 1.0, 1.0,
+
+        -1.0, -1.0, 1.0,
+        1.0, -1.0, 1.0,
+        1.0, 1.0, 1.0,
+    ]);
+
+    geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+
+    var mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh)
+    scene.add(light);
+    scene.add(light2);
+    scene.add(light3);
+
+
+    var progression = 0;
+
+    function animate() {
+
+        progression += 0.03;
+        light.position.set(10 * Math.sin(progression), 10 * Math.cos(progression), 0);
+        light2.position.set(0, 10 * Math.sin(progression), 10 * Math.cos(progression));
+        light3.position.set(10 * Math.sin(progression), 0, 10 * Math.cos(progression));
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+
+    (function (camera, pointerCaptureElement) {
+        camera.rotation.order = "YXZ";
+        pointerCaptureElement.requestPointerLock =
+            pointerCaptureElement.requestPointerLock ||
+            pointerCaptureElement.mozRequestPointerLock;
+
+        let hasPointerLock = function () {
+            return document.pointerLockElement === pointerCaptureElement || document.mozPointerLockElement === pointerCaptureElement;
+        };
+        let requestPointerLock = function () {
+            pointerCaptureElement.requestPointerLock();
+        };
+        pointerCaptureElement.addEventListener("click", function () {
+            if (hasPointerLock()) {
+
+            } else {
+                requestPointerLock();
+            }
+        });
+        window.addEventListener("mousemove", function (event) {
+            if (hasPointerLock()) {
+                camera.rotation.y += event.movementX * -0.002;
+                camera.rotation.x = Math.max(Math.min(camera.rotation.x + (event.movementY * -0.002), Math.PI / 2), -Math.PI / 2);
+            }
+        });
+
+        let keys = {};
+        document.addEventListener("keydown", function (event) {
+
+            keys[event.code] = true;
+        });
+        document.addEventListener("keyup", function (event) {
+            keys[event.code] = false;
+        });
+        let speed = 1;
+        setInterval(function () {
+            if (keys.Space) {
+                let dir = (new THREE.Vector3(0, 1, 0)).applyQuaternion(camera.quaternion).multiplyScalar(speed);
+                camera.position.add(dir);
+            }
+            if (keys.ShiftLeft) {
+                let dir = (new THREE.Vector3(0, -1, 0)).applyQuaternion(camera.quaternion).multiplyScalar(speed);
+                camera.position.add(dir);
+            }
+            if (keys.KeyW) {
+                let dir = (new THREE.Vector3(0, 0, -1)).applyQuaternion(camera.quaternion).multiplyScalar(speed);
+                camera.position.add(dir);
+            }
+            if (keys.KeyS) {
+                let dir = (new THREE.Vector3(0, 0, 1)).applyQuaternion(camera.quaternion).multiplyScalar(speed);
+                camera.position.add(dir);
+            }
+            if (keys.KeyA) {
+                let dir = (new THREE.Vector3(-1, 0, 0)).applyQuaternion(camera.quaternion).multiplyScalar(speed);
+                camera.position.add(dir);
+            }
+            if (keys.KeyD) {
+                let dir = (new THREE.Vector3(1, 0, 0)).applyQuaternion(camera.quaternion).multiplyScalar(speed);
+                camera.position.add(dir);
+            }
+        }, 16);
+    })(camera, renderer.domElement);
+</script>
 </body>
 </html>
